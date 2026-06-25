@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hardware Deathmatch: Mainframe Gladiators</title>
+    <style>
+        :root {
+            --bg-color: #0f0f14;
+            --panel-color: #1a1a24;
+            --accent-blue: #0066cc;
+            --accent-green: #009944;
+            --accent-red: #cc1111;
+            --text-color: #ffffff;
+            --text-muted: #888899;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 950px;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+        }
+
+        header {
+            grid-column: 1 / span 2;
+            background: linear-gradient(135deg, var(--accent-red), var(--accent-blue));
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+
+        header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; }
+        header p { margin: 5px 0 0 0; font-size: 14px; color: #e0e0e0; }
+
+        .panel {
+            background-color: var(--panel-color);
+            border: 1px solid #2a2a3a;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Character Profile Summary */
+        .profile-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+        }
+        .progress-bar-container {
+            background-color: #101015;
+            border-radius: 4px;
+            width: 100%;
+            height: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+        .progress-bar {
+            background-color: var(--accent-green);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Question Box Styling */
+        .question-box h2 {
+            margin-top: 0;
+            font-size: 18px;
+            line-height: 1.4;
+            color: #dcdcdc;
+        }
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .option-btn {
+            background-color: #222230;
+            border: 1px solid #3a3a50;
+            color: var(--text-color);
+            padding: 14px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-btn:hover {
+            background-color: var(--accent-blue);
+            border-color: #5599ff;
+        }
+
+        /* Armory Marketplace */
+        .shop-title {
+            margin-top: 0;
+            font-size: 16px;
+            border-bottom: 1px solid #3a3a50;
+            padding-bottom: 5px;
+            color: var(--accent-green);
+        }
+        .shop-item {
+            background: #13131a;
+            border: 1px solid #252535;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .shop-item-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .shop-desc { font-size: 11px; color: var(--text-muted); }
+        .buy-btn {
+            background-color: #aa7700;
+            border: none;
+            color: white;
+            padding: 5px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .buy-btn:disabled {
+            background-color: #333;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        /* Alerts Feedback overlay */
+        .feedback-text {
+            font-weight: bold;
+            text-align: center;
+            margin-top: 15px;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <header>
+        <h1>⚔️ HARDWARE DEATHMATCH: MAINFRAME GLADIATORS</h1>
+        <p>Answer Counter Questions to Gear Up for the Physical Breadboard Arena</p>
+    </header>
+
+    <main class="panel question-box">
+        <div id="quiz-screen">
+            <h2 id="question-text">Loading simulation data stream...</h2>
+            <div class="options-grid" id="options-container"></div>
+            <div id="feedback" class="feedback-text"></div>
+        </div>
+        <div id="victory-screen" style="display: none; text-align: center; padding: 40px 10px;">
+            <h2 style="color: var(--accent-green);">🎉 ARCHITECTURE COMPLETE 🎉</h2>
+            <p>You have answered all available database diagnostic questions.</p>
+            <p>Take your unlocked weapon inventory specs and dominate your laboratory partner!</p>
+        </div>
+    </main>
+
+    <aside style="display: flex; flex-direction: column; gap: 20px;">
+        <section class="panel profile-card">
+            <div class="stat-line"><span>RANK:</span><span id="char-level" style="color:var(--accent-blue)">Gladiator Lv.1</span></div>
+            <div>
+                <div class="stat-line" style="font-size: 12px; color: var(--text-muted);"><span>System Core XP:</span><span id="xp-text">0 / 100</span></div>
+                <div class="progress-bar-container"><div class="progress-bar" id="xp-bar"></div></div>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #2a2a3a; margin: 5px 0;">
+            <div class="stat-line"><span>💰 GOLD BANK:</span><span id="char-gold" style="color:#ffcc00">0g</span></div>
+            <div class="stat-line"><span>⚔️ ATK POWER:</span><span id="char-atk" style="color:var(--accent-red)">+0</span></div>
+            <div class="stat-line"><span>🛡️ REG SHIELD:</span><span id="char-def" style="color:var(--accent-green)">+0</span></div>
+        </section>
+
+        <section class="panel">
+            <h3 class="shop-title">🔧 INTEGRATED CIRCUIT ARMORY</h3>
+            <div id="shop-container">
+                <div class="shop-item">
+                    <div class="shop-item-header"><span>Plasma Clock-Staff (555 Timer)</span><span>Cost: 40g</span></div>
+                    <div class="shop-desc">Generates raw clock frequencies. Boosts attack stats.</div>
+                    <button class="buy-btn" id="buy-item1" onclick="buyItem(1, 40, 'atk', 3)">Equip Weapon Module (+3 ATK)</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-item-header"><span>Binary Exoskeleton (4-Bit IC)</span><span>Cost: 75g</span></div>
+                    <div class="shop-desc">Buffers incoming register states. Increases logic shield blocks.</div>
+                    <button class="buy-btn" id="buy-item2" onclick="buyItem(2, 75, 'def', 2)">Equip Armor Module (+2 DEF)</button>
+                </div>
+                <div class="shop-item">
+                    <div class="shop-item-header"><span>Feedback Reflector (Logic Feedback Loop)</span><span>Cost: 120g</span></div>
+                    <div class="shop-desc">High-tier logic gate block array. Maximizes defensive thresholds.</div>
+                    <button class="buy-btn" id="buy-item3" onclick="buyItem(3, 120, 'def', 4)">Equip Shield Module (+4 DEF)</button>
+                </div>
+            </div>
+        </section>
+    </aside>
+</div>
+
+<script>
+    // Embedded GCSE Counter Questions Data Array Bank
+    const questions = [
+        {
+            q: "On which part of a clock pulse square-wave signal will a standard D-type flip-flop transfer the input data at D directly to output Q?",
+            a: ["The rising edge (LOW to HIGH transition)", "The falling edge (HIGH to LOW transition)", "During the entire duration of a HIGH logic state", "Only when the clock signal settles entirely back to 0"],
+            c: 0
+        },
+        {
+            q: "You are building a basic 4-bit binary ripple counter module. If the output of the first stage (LSB output A) reads a frequency of 200 Hz, what is the output frequency of the next stage (output B)?",
+            a: ["400 Hz", "200 Hz", "100 Hz", "50 Hz"],
+            c: 2
+        },
+        {
+            q: "An active-high reset line on a standard counter chip causes all internal output lines to wipe back to zero when it encounters which logic condition?",
+            a: "Logic 0 (LOW state)",
+            a: ["Logic 0 (LOW state)", "Logic 1 (HIGH state)", "A complete open-circuit disconnection", "Only when a negative voltage loop occurs"],
+            c: 1
+        },
+        {
+            q: "You want to convert a standard 4-bit counter into a Modulo-6 system so it cleanly cycles from Decimal 0 up to Decimal 5 and resets. Which two output lines must feed into an AND gate to trigger the reset line?",
+            a: ["Outputs D and A", "Outputs C and B", "Outputs C and A", "Outputs B and A"],
+            c: 1
+        },
+        {
+            q: "Why will a standard single-stage Binary Coded Decimal (BCD) decoder fail and produce display configuration errors if it is fed with the binary sequence 1100?",
+            a: ["The clock pulse is running at too high a frequency", "A single BCD decoder stage can only process individual values from 0 to 9", "The outputs require an active-low reset to read lines above 8", "1100 represents Decimal 10, which requires an internal XOR loop"],
+            c: 1
+        },
+        {
+            q: "How do the output pins of a 4017 synchronous decade counter chip operate differently compared to standard concurrent 4-bit binary cascading counter chips?",
+            a: ["It counts backwards automatically down to 0", "Exactly one single isolated output pin is driven HIGH sequentially at any one time", "All outputs turn HIGH simultaneously on the falling clock transitions", "It requires external logic gates to handle values between 1 and 4"],
+            c: 2
+        }
+    ];
+
+    // Character Game Profile Inventory States
+    let player = {
+        level: 1,
+        xp: 0,
+        nextLevelXp: 100,
+        gold: 0,
+        atk: 0,
+        def: 0,
+        itemsPurchased: []
+    };
+
+    let currentQuestionIndex = 0;
+
+    // Display Updater Engine Function
+    function updateUI() {
+        document.getElementById('char-level').innerText = `Gladiator Lv.${player.level}`;
+        document.getElementById('xp-text').innerText = `${player.xp} / ${player.nextLevelXp}`;
+        document.getElementById('char-gold').innerText = `${player.gold}g`;
+        document.getElementById('char-atk').innerText = `+${player.atk}`;
+        document.getElementById('char-def').innerText = `+${player.def}`;
+        
+        let xpPercent = (player.xp / player.nextLevelXp) * 100;
+        document.getElementById('xp-bar').style.width = `${xpPercent}%`;
+
+        // Manage armory buttons visibility and cost limitations
+        for (let i = 1; i <= 3; i++) {
+            let btn = document.getElementById(`buy-item${i}`);
+            if (player.itemsPurchased.includes(i)) {
+                btn.innerText = "ALREADY EQUIPPED";
+                btn.disabled = true;
+                btn.style.backgroundColor = "var(--accent-green)";
+            }
+        }
+    }
+
+    // Load next multiple choice setup block
+    function loadQuestion() {
+        if (currentQuestionIndex >= questions.length) {
+            document.getElementById('quiz-screen').style.display = 'none';
+            document.getElementById('victory-screen').style.display = 'block';
+            return;
+        }
+
+        document.getElementById('feedback').innerText = "";
+        let qData = questions[currentQuestionIndex];
+        document.getElementById('question-text').innerText = `[DIAGNOSTIC HACK ${currentQuestionIndex + 1}/${questions.length}] ${qData.q}`;
+        
+        let container = document.getElementById('options-container');
+        container.innerHTML = "";
+
+        qData.a.forEach((option, idx) => {
+            let btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerText = `${String.fromCharCode(65 + idx)}. ${option}`;
+            btn.onclick = () => checkAnswer(idx);
+            container.appendChild(btn);
+        });
+    }
+
+    // Process correctness evaluations
+    function checkAnswer(selectedIndex) {
+        let qData = questions[currentQuestionIndex];
+        let feedback = document.getElementById('feedback');
+
+        if (selectedIndex === qData.c) {
+            feedback.style.color = "var(--accent-green)";
+            feedback.innerText = "✔ LOGIC SECTOR VERIFIED! +25 XP / +15g Gold Earned.";
+            player.gold += 15;
+            player.xp += 25;
+            
+            // Level adjustment computations
+            if (player.xp >= player.nextLevelXp) {
+                player.xp -= player.nextLevelXp;
+                player.level += 1;
+                feedback.innerText = "⚡ MAIN REGISTERS EXPANDED! GLADIATOR LEVEL UP!";
+            }
+            
+            updateUI();
+            currentQuestionIndex++;
+            setTimeout(loadQuestion, 1800);
+        } else {
+            feedback.style.color = "var(--accent-red)";
+            feedback.innerText = "❌ SHORT CIRCUIT FAULT! Incorrect answer format. Recalibrating logic paths...";
+        }
+    }
+
+    // Shop item transaction processing logic
+    function buyItem(itemId, cost, statType, valueMod) {
+        if (player.gold >= cost && !player.itemsPurchased.includes(itemId)) {
+            player.gold -= cost;
+            player.itemsPurchased.push(itemId);
+            player.itemsPurchased.push(itemId);
+            player[statType] += valueMod;
+            updateUI();
+        } else if (player.gold < cost) {
+            alert("Insufficient Gold Bank assets! Keep solving counter equations to mine more hardware gold currency.");
+        }
+    }
+
+    // Initialization bootstrap calls
+    updateUI();
+    loadQuestion();
+</script>
+
+</body>
+</html>
