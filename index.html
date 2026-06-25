@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mainframe Gladiators: Infinite 2D Dungeon Crawler</title>
+    <title>Mainframe Gladiators: Ultimate Tactical Arena</title>
     <style>
         :root {
-            --bg-color: #08080c;
-            --panel-color: #12121a;
-            --accent-blue: #0052cc;
-            --accent-green: #009944;
-            --accent-red: #cc1111;
+            --bg-color: #050508;
+            --panel-color: #0f0f18;
+            --accent-blue: #0066ff;
+            --accent-green: #00cc66;
+            --accent-red: #ff3333;
+            --accent-purple: #aa33ff;
             --text-color: #ffffff;
         }
 
@@ -23,27 +24,28 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            user-select: none;
         }
 
         .game-wrapper {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 360px;
             gap: 15px;
             width: 100%;
-            max-width: 1100px;
+            max-width: 1150px;
         }
 
         header {
             grid-column: 1 / span 2;
-            background: #0d0d14;
-            border: 2px dashed var(--accent-blue);
+            background: #09090f;
+            border: 2px solid var(--accent-blue);
             padding: 10px;
             text-align: center;
         }
 
         #map-container {
-            background-color: #030306;
-            border: 3px solid #1c1c28;
+            background-color: #020204;
+            border: 3px solid #1a1a26;
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             grid-template-rows: repeat(12, 1fr);
@@ -53,7 +55,7 @@
         }
 
         .cell {
-            border: 1px solid #0b0b12;
+            border: 1px solid #08080f;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -61,41 +63,41 @@
             font-size: 16px;
         }
 
-        .player { background-color: #0033aa; color: #00ff66; border-radius: 4px; box-shadow: 0 0 10px #00ff66; }
-        .monster { background-color: #3d0000; color: #ff3333; animation: pulse 1.5s infinite; }
-        .loot { background-color: #3d2a00; color: #ffcc00; }
-        .wall { background-color: #1d1d29; }
+        .player { background-color: #0033aa; color: #00ff66; border-radius: 4px; box-shadow: 0 0 12px #00ff66; }
+        .monster { background-color: #4a0000; color: #ff3333; animation: pulse 1.2s infinite; }
+        .loot { background-color: #4a3600; color: #ffcc00; }
+        .wall { background-color: #151522; }
 
         @keyframes pulse {
-            0% { opacity: 0.6; }
+            0% { opacity: 0.5; }
             50% { opacity: 1; }
-            100% { opacity: 0.6; }
+            100% { opacity: 0.5; }
         }
 
         .panel {
             background-color: var(--panel-color);
-            border: 1px solid #222232;
+            border: 1px solid #1f1f2e;
             border-radius: 6px;
             padding: 15px;
         }
 
         .combat-overlay {
-            background-color: rgba(10, 10, 15, 0.97);
-            border: 2px solid var(--accent-red);
+            background-color: rgba(5, 5, 10, 0.98);
+            border: 3px solid var(--accent-red);
             position: absolute;
-            top: 10%;
-            left: 5%;
-            width: 90%;
+            top: 8%;
+            left: 4%;
+            width: 92%;
             max-width: 650px;
             padding: 20px;
             display: none;
             z-index: 10;
-            box-shadow: 0 0 25px rgba(255,0,0,0.5);
+            box-shadow: 0 0 35px rgba(255,51,51,0.6);
         }
 
         .option-btn {
-            background-color: #1a1a26;
-            border: 1px solid #333344;
+            background-color: #141420;
+            border: 1px solid #2d2d42;
             color: white;
             padding: 12px;
             margin: 6px 0;
@@ -124,353 +126,432 @@
 
         .stat-bar {
             background: #000;
-            border: 1px solid #333;
+            border: 1px solid #222;
             height: 16px;
             width: 100%;
             margin-top: 4px;
+            position: relative;
         }
-        .hp-fill { background-color: var(--accent-red); height: 100%; width: 100%; transition: width 0.2s; }
+        .hp-fill { background-color: var(--accent-red); height: 100%; width: 100%; transition: width 0.1s linear; }
         .xp-fill { background-color: var(--accent-green); height: 100%; width: 0%; transition: width 0.2s; }
+        .timer-fill { background-color: #ffaa00; height: 100%; width: 100%; }
+
+        .ability-btn {
+            background-color: var(--accent-purple);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-family: inherit;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 4px;
+        }
+        .ability-btn:disabled {
+            background-color: #221b2b;
+            color: #554466;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
 
 <div class="game-wrapper">
     <header>
-        <h2>[MAINFRAME_INFINITE_LOOP.EXE]</h2>
-        <p>Control with <b>W, A, S, D</b> or <b>ARROW KEYS</b>. 100 random modular questions loaded. Shuffles endlessly!</p>
+        <h2>⚔️ [MAINFRAME_HARDCORE_ARENA.EXE] ⚔️</h2>
+        <p><b>W, A, S, D</b> or <b>ARROWS</b> to walk. Random choices, ticking timers, critical hit damage, and level 1 permadeath reset active!</p>
     </header>
 
     <div style="position: relative;">
         <div id="map-container"></div>
 
         <div id="combat-terminal" class="combat-overlay">
-            <h3 id="combat-title" style="color: var(--accent-red); margin-top:0;">⚠️ CORRUPT SECTOR ENCOUNTER</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h3 id="combat-title" style="color: var(--accent-red); margin:0;">⚠️ LIVE COMBAT ENCOUNTER</h3>
+                <span id="speed-indicator" style="font-size:11px; color:#ffaa00;">Timer Speed: 15.0s</span>
+            </div>
+            
+            <div class="stat-bar" style="margin-bottom:15px; border-color:#ffaa00;"><div class="timer-fill" id="combat-timer-bar"></div></div>
+            
             <p id="question-text">Decoding stream...</p>
             <div id="options-box"></div>
-            <p id="combat-feedback" style="font-weight:bold; margin-top:10px;"></p>
+            
+            <button id="use-freeze-btn" class="ability-btn" onclick="activateTimeFreeze()">🔒 USE DATA LATCH (Freeze Timer)</button>
+            
+            <p id="combat-feedback" style="font-weight:bold; margin-top:12px; min-height:18px;"></p>
         </div>
 
         <div id="loot-terminal" class="combat-overlay" style="border-color: #ffcc00; box-shadow: 0 0 25px rgba(255,200,0,0.4)">
-            <h3 style="color: #ffcc00; margin-top:0;">🎁 LOGIC CHIP SALVAGE CORE</h3>
-            <p>A loop entity collapsed! Decide what to process from the remaining trace remnants:</p>
+            <h3 style="color: #ffcc00; margin-top:0;">🎁 ACCUMULATED DATA DROPS</h3>
+            <p>Select what to salvage from the trace remnants:</p>
             <div class="loot-choices">
-                <button class="loot-btn" onclick="processLoot('equip')">Extract Hardware Spec Modules (+4 ATK / +2 DEF)</button>
-                <button class="loot-btn" style="background-color:#b58000" onclick="processLoot('gold')">Scrap for Power Grid Gold Coins (+45 Gold)</button>
-                <button class="loot-btn" style="background-color:#333" onclick="closeLoot()">Purge and Leave Drop</button>
+                <button class="loot-btn" onclick="processLoot('latch')">Forge Data Latch Ability Slot (+1 Freeze Token)</button>
+                <button class="loot-btn" style="background-color:#b58000" onclick="processLoot('gold')">Scrap Circuitry for Gold (+50 Gold)</button>
+                <button class="loot-btn" style="background-color:#333" onclick="closeLoot()">Discard Cache</button>
             </div>
         </div>
     </div>
 
     <aside style="display: flex; flex-direction: column; gap: 15px;">
         <section class="panel">
-            <h3>🛡️ TERMINAL STATUS</h3>
+            <h3>🛡️ REGISTER DATA</h3>
             <div style="font-size:12px; font-weight: bold; color:var(--accent-blue)" id="level-display">GLADIATOR LEVEL: 1</div>
             
             <div style="font-size:11px; margin-top:8px;">Core Voltage Integrity (HP): <span id="hp-value">30</span>/30</div>
             <div class="stat-bar"><div class="hp-fill" id="hp-bar"></div></div>
             
-            <div style="font-size:11px; margin-top:8px;">Exponential Level Progress (XP): <span id="xp-value">0</span> / <span id="xp-needed">100</span></div>
+            <div style="font-size:11px; margin-top:8px;">Next Level Threshold (XP): <span id="xp-value">0</span> / <span id="xp-needed">100</span></div>
             <div class="stat-bar"><div class="xp-fill" id="xp-bar"></div></div>
             
-            <p style="margin: 15px 0 0 0; color:#ffcc00; font-weight: bold;">💰 Gold Reserves: <span id="gold-value">25</span>g</p>
+            <p style="margin: 15px 0 0 0; color:#ffcc00; font-weight: bold;">💰 Gold Wallet: <span id="gold-value">0</span>g</p>
+            <p style="margin: 5px 0 0 0; color:var(--accent-purple); font-weight: bold;">🔒 Time Freezes (Latches): <span id="latch-value">1</span></p>
             <p style="margin: 5px 0 0 0; color:var(--accent-red)">⚔️ Attack Registers: <span id="atk-value">5</span></p>
             <p style="margin: 5px 0 0 0; color:var(--accent-green)">🛡️ Shield Capacitors: <span id="def-value">2</span></p>
         </section>
 
         <section class="panel" style="font-size:11px; line-height: 1.4;">
-            <h3 style="margin-top:0; color:var(--accent-blue);">📋 ARCHITECTURE SYSTEM LOG</h3>
-            <div id="logbox" style="height:250px; overflow-y:auto; color:#9999bb; background:#06060a; padding:8px; border:1px solid #1f1f2e;">
-                Sub-routines linked. Generator parsed 100 syllabus items.<br>Move to begin hacking...
+            <h3 style="margin-top:0; color:var(--accent-blue);">📋 RUNTIME STATUS ALERTS</h3>
+            <div id="logbox" style="height:220px; overflow-y:auto; color:#9999bb; background:#040407; padding:8px; border:1px solid #1b1b26;">
+                Core initialized. 100 questions randomized.<br>Time drops progressively to 3 seconds by level 50.<br>Move to begin...
             </div>
         </section>
     </aside>
 </div>
 
 <script>
-    // 1. ENGINE ENGINE: Generate exactly 100 randomized GCSE-aligned questions programmatically 
-    function constructOneHundredQuestions() {
+    // 1. ENGINE LOOPS: Generate 100 programmatic questions (A is the correct source index initially)
+    function buildBaseQuestions() {
         let list = [];
-        
-        // Base topics to pick structural descriptions from
-        const edgeOpts = ["Rising Edge (LOW to HIGH transition)", "Falling Edge (HIGH to LOW transition)", "Static Logic 1 State duration", "Static Logic 0 State duration"];
-        const bcdOpts = ["It exceeds the maximum 4-bit limit of single-digit representation (0-9)", "The system requires active-low ground lines above 8", "The clock loop locks permanently", "It forces an internal reset down to 0V lines"];
-        const decadeOpts = ["Exactly one single output pin is driven sequentially HIGH at a time", "All ten pins turn HIGH simultaneously on falling edges", "It functions backward down to zero logic automatically", "It requires external logic configurations to load values 2 through 5"];
+        const baseEdges = ["Rising Edge (LOW to HIGH transition)", "Falling Edge (HIGH to LOW transition)", "Steady HIGH voltage window", "Steady LOW logic baseline"];
+        const baseBcds = ["BCD networks can only decode distinct single digits between 0 and 9", "The line inputs lack high-frequency multipliers", "The logic chips trigger active-low inverted counts", "It forces immediate binary overrides above 8"];
+        const baseDecades = ["Exactly one single output pin is driven sequentially HIGH at a given time step", "All outputs output parallel binary bursts together", "The clock counts backwards dynamically down to zero lines", "It halts processing when logic levels cross 5V markers"];
 
-        // Generate D-type data transfer questions (1-20)
         for(let i=1; i<=20; i++) {
-            list.push({
-                q: `[D-Type Latches] Diagnostic case #${100+i}: If data terminal input D shifts between values, at which specific transition moment will a rising-edge triggered D-type flip-flop register state updates down to Q?`,
-                a: [...edgeOpts], c: 0
-            });
+            list.push({ q: `[D-Type] Reference Stream #${100+i}: At what exact signal boundary conditions will a D-type flip-flop chip register input updates from D onto output Q?`, a: [...baseEdges], correctText: baseEdges[0] });
         }
-        // Generate Ripple Binary Frequency Math questions (21-40)
         for(let i=1; i<=20; i++) {
-            let baseFreq = 100 * (i % 5 + 1);
-            let half = baseFreq / 2;
-            list.push({
-                q: `[Ripple Counters] Mathematical configuration loop #${200+i}: You have connected two D-type flip-flops in cascade to build a 2-bit ripple up-counter. If output pin A (LSB) outputs a frequency of exactly ${baseFreq} Hz, what is the processed output frequency at output pin B?`,
-                a: [`${baseFreq * 2} Hz`, `${baseFreq} Hz`, `${half} Hz`, `${half / 2} Hz`], c: 2
-            });
+            let freq = 100 * (i % 5 + 1);
+            list.push({ q: `[Ripple Frequency] Circuit Matrix #${200+i}: Inside a multi-stage ripple up-counter, if the first flip-flop LSB output node (A) registers a frequency of ${freq} Hz, what is the divided output at pin B?`, a: [`${freq/2} Hz`, `${freq*2} Hz`, `${freq} Hz`, `${freq/4} Hz`], correctText: `${freq/2} Hz` });
         }
-        // Generate Modulo Feedback Logic Loop questions (41-60)
         for(let i=1; i<=20; i++) {
-            let modNum = (i % 4) + 5; // Modulo 5, 6, 7, 8
-            let highestCount = modNum - 1;
-            let ansStr = modNum === 6 ? "Outputs B and C (Decimal 6: 0110)" : modNum === 5 ? "Outputs A and C (Decimal 5: 0101)" : modNum === 7 ? "Outputs A, B, and C (Decimal 7: 0111)" : "Output D (Decimal 8: 1000)";
-            list.push({
-                q: `[Modulo Resets] Engineering configuration loop #${300+i}: To restrict a 4-bit synchronous binary counter chip into a Modulo-${modNum} loop (allowing it to clean count from 0 up to ${highestCount} before resetting), which logic configuration outputs must feed directly into the reset terminal?`,
-                a: [ansStr, "Outputs A and B (Decimal 3)", "Outputs A and D (Decimal 9)", "Reset line left floating to auto-ground"], c: 0
-            });
+            let modNum = (i % 4) + 5; 
+            let countLimit = modNum - 1;
+            let targetAns = modNum === 6 ? "Outputs B and C (Decimal 6: 0110)" : modNum === 5 ? "Outputs A and C (Decimal 5: 0101)" : modNum === 7 ? "Outputs A, B, and C (Decimal 7: 0111)" : "Output D (Decimal 8: 1000)";
+            list.push({ q: `[Modulo Limits] Logic Feedback Loop #${300+i}: You are designing a Modulo-${modNum} counter circuit (counts 0 to ${countLimit} then resets). Which output pin lines must connect to an AND gate to trigger the active-high reset?`, a: [targetAns, "Outputs A and B (Decimal 3)", "Outputs A and D (Decimal 9)", "Reset pin left un-wired to drift"], correctText: targetAns });
         }
-        // Generate Binary Coded Decimal Display Questions (61-80)
         for(let i=1; i<=20; i++) {
-            list.push({
-                q: `[BCD Decoders] Display system test #${400+i}: Why does a standard single-stage Binary Coded Decimal (BCD) decoder interface crash or fail to execute correctly when sent the logic string value 1100 (Decimal 12)?`,
-                a: [...bcdOpts], c: 0
-            });
+            list.push({ q: `[BCD Drivers] Hardware Diagnostic Check #${400+i}: Why does sending a 4-bit binary data sequence of 1100 (Decimal 12) directly into a single 7-segment BCD decoder display driver crash or return system faults?`, a: [...baseBcds], correctText: baseBcds[0] });
         }
-        // Generate 4017 Decade Counter Questions (81-100)
         for(let i=1; i<=20; i++) {
-            list.push({
-                q: `[4017 Counters] Integrated Circuit analysis #${500+i}: How do the independent output pins of a 4017 Synchronous Decade Counter behave differently compared to traditional binary counting systems?`,
-                a: [...decadeOpts], c: 0
-            });
+            list.push({ q: `[4017 Decade Array] Integrated Circuit Analysis #${500+i}: What specific operation rule dictates how the independent sequential output pins of a 4017 Decade Counter cycle?`, a: [...baseDecades], correctText: baseDecades[0] });
         }
         return list;
     }
 
-    // Shuffle tool for true randomisation
-    function shuffleArray(arr) {
+    function shuffle(arr) {
         for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [arr[i], arr[j]] = [arr[j], arr[i]];
         }
     }
 
-    let masterPool = constructOneHundredQuestions();
-    shuffleArray(masterPool);
-    let currentQuestionIndex = 0;
+    let questionBank = buildBaseQuestions();
+    shuffle(questionBank);
+    let questionIndex = 0;
 
-    // 2. INFINITE EXPONENTIAL LEVEL CONSTANTS
-    let player = {
-        level: 1,
-        hp: 30,
-        maxHp: 30,
-        xp: 0,
-        nextLevelXp: 100, // Grows exponentially
-        gold: 25,
-        atk: 5,
-        def: 2,
-        currentMonsterCoord: null
+    // 2. STATE LOGIC TRACKERS
+    let gladiator = {
+        level: 1, hp: 30, maxHp: 30, xp: 0, nextLevelXp: 100, gold: 0, latches: 1, atk: 5, def: 2, currentMonsterPos: null
     };
 
-    // 12x12 Dungeon Corridors Layout Matrix
-    // 0 = Open path, 1 = Solid wall, 2 = Rogue Monster (M), 3 = Treasure Dropped Core (L)
-    let mapGrid = [
+    let mapMatrix = [
         [1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,0,0,0,1,0,0,2,0,0,0,1],
+        [1,0,0,0,1,0,2,0,0,0,0,1],
         [1,0,1,0,1,0,1,1,1,1,0,1],
         [1,2,1,0,0,0,0,0,0,1,2,1],
         [1,0,1,1,1,1,0,1,0,1,0,1],
-        [1,0,0,0,2,1,0,1,0,0,0,1],
+        [1,0,0,0,2,1,0,1,0,2,0,1],
         [1,1,1,0,0,1,0,1,1,1,0,1],
         [1,0,2,0,0,0,0,0,0,1,0,1],
         [1,0,1,1,1,1,1,1,0,1,2,1],
         [1,0,0,2,0,0,2,0,0,1,0,1],
-        [1,0,1,0,0,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1],
         [1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    let playerPos = { x: 1, y: 1 };
-    let interactionActive = false;
+    let playerCoords = { x: 1, y: 1 };
+    let uiLocked = false;
 
-    // Re-populate rooms when loop cycles or deck exhausts
-    function respawnEntities() {
+    // 3. TIMER & COMBAT LOOP RUNTIME RE-ENGINEERING
+    let countdownTimer = null;
+    let timeRemaining = 0;
+    let currentQuestionTimeMax = 15;
+    let timerFrozen = false;
+
+    function populateThreats() {
         for(let y=1; y<11; y++) {
             for(let x=1; x<11; x++) {
-                if(mapGrid[y][x] === 0 && Math.random() < 0.25) {
-                    mapGrid[y][x] = Math.random() > 0.3 ? 2 : 3;
+                if(mapMatrix[y][x] === 0 && Math.random() < 0.28) {
+                    mapMatrix[y][x] = Math.random() > 0.35 ? 2 : 3;
                 }
             }
         }
     }
 
-    function renderArenaMap() {
-        let mapDiv = document.getElementById('map-container');
-        mapDiv.innerHTML = "";
-        
+    function renderArena() {
+        let container = document.getElementById('map-container');
+        container.innerHTML = "";
         for (let y = 0; y < 12; y++) {
             for (let x = 0; x < 12; x++) {
-                let block = document.createElement('div');
-                block.className = "cell";
-                
-                if (x === playerPos.x && y === playerPos.y) {
-                    block.className += " player";
-                    block.innerText = "G";
-                } else if (mapGrid[y][x] === 1) {
-                    block.className += " wall";
-                } else if (mapGrid[y][x] === 2) {
-                    block.className += " monster";
-                    block.innerText = "M";
-                } else if (mapGrid[y][x] === 3) {
-                    block.className += " loot";
-                    block.innerText = "L";
-                }
-                mapDiv.appendChild(block);
+                let node = document.createElement('div');
+                node.className = "cell";
+                if (x === playerCoords.x && y === playerCoords.y) {
+                    node.className += " player"; node.innerText = "G";
+                } else if (mapMatrix[y][x] === 1) { node.className += " wall"; }
+                else if (mapMatrix[y][x] === 2) { node.className += " monster"; node.innerText = "M"; }
+                else if (mapMatrix[y][x] === 3) { node.className += " loot"; node.innerText = "L"; }
+                container.appendChild(node);
             }
         }
-        refreshDashboard();
+        updateDashboardUI();
     }
 
-    function refreshDashboard() {
-        document.getElementById('level-display').innerText = `GLADIATOR RANK: LV.${player.level}`;
-        document.getElementById('hp-value').innerText = player.hp;
-        document.getElementById('xp-value').innerText = player.xp;
-        document.getElementById('xp-needed').innerText = player.nextLevelXp;
-        document.getElementById('gold-value').innerText = player.gold;
-        document.getElementById('atk-value').innerText = player.atk;
-        document.getElementById('def-value').innerText = player.def;
+    function updateDashboardUI() {
+        document.getElementById('level-display').innerText = `GLADIATOR RANK: LV.${gladiator.level}`;
+        document.getElementById('hp-value').innerText = gladiator.hp;
+        document.getElementById('xp-value').innerText = gladiator.xp;
+        document.getElementById('xp-needed').innerText = gladiator.nextLevelXp;
+        document.getElementById('gold-value').innerText = gladiator.gold;
+        document.getElementById('latch-value').innerText = gladiator.latches;
+        document.getElementById('atk-value').innerText = gladiator.atk;
+        document.getElementById('def-value').innerText = gladiator.def;
         
-        document.getElementById('hp-bar').style.width = `${(player.hp / player.maxHp) * 100}%`;
-        document.getElementById('xp-bar').style.width = `${(player.xp / player.nextLevelXp) * 100}%`;
+        document.getElementById('hp-bar').style.width = `${Math.max(0, (gladiator.hp / gladiator.maxHp) * 100)}%`;
+        document.getElementById('xp-bar').style.width = `${(gladiator.xp / gladiator.nextLevelXp) * 100}%`;
 
-        if(player.hp <= 0) {
-            interactionActive = true;
-            alert("💀 SYSTEM OVERLOAD CRASH! Your core health depleted to 0. Mainframe connection terminated.");
-            window.location.reload();
+        // Execution Check for Permadeath Level 1 System Wipe
+        if(gladiator.hp <= 0) {
+            clearInterval(countdownTimer);
+            alert("💀 KERNEL PANIC OVERLOAD! Core health hit 0.\nYour gladiator has died. Resetting terminal entirely back to Rank Level 1!");
+            gladiator.level = 1;
+            gladiator.maxHp = 30;
+            gladiator.hp = 30;
+            gladiator.xp = 0;
+            gladiator.nextLevelXp = 100;
+            gladiator.gold = 0;
+            gladiator.latches = 1;
+            gladiator.atk = 5;
+            gladiator.def = 2;
+            playerCoords = { x: 1, y: 1 };
+            questionIndex = 0;
+            shuffle(questionBank);
+            mapMatrix = [
+                [1,1,1,1,1,1,1,1,1,1,1,1],
+                [1,0,0,0,1,0,2,0,0,0,0,1],[1,0,1,0,1,0,1,1,1,1,0,1],[1,2,1,0,0,0,0,0,0,1,2,1],[1,0,1,1,1,1,0,1,0,1,0,1],
+                [1,0,0,0,2,1,0,1,0,2,0,1],[1,1,1,0,0,1,0,1,1,1,0,1],[1,0,2,0,0,0,0,0,0,1,0,1],[1,0,1,1,1,1,1,1,0,1,2,1],
+                [1,0,0,2,0,0,2,0,0,1,0,1],[1,0,0,0,0,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1,1,1,1,1]
+            ];
+            populateThreats();
+            document.getElementById('combat-terminal').style.display = "none";
+            uiLocked = false;
+            pushLog("🔄 EMERGENCY ROLLBACK EXECUTED. System wiped to Level 1 parameters.");
+            renderArena();
         }
     }
 
-    function pushLog(text) {
+    function pushLog(txt) {
         let box = document.getElementById('logbox');
-        box.innerHTML += `<br>&gt; ${text}`;
+        box.innerHTML += `<br>&gt; ${txt}`;
         box.scrollTop = box.scrollHeight;
     }
 
-    // Capture Movement Input
-    window.addEventListener('keydown', function(event) {
-        if (interactionActive) return;
-        let stepX = playerPos.x;
-        let stepY = playerPos.y;
+    // Capture Navigation Triggers
+    window.addEventListener('keydown', function(evt) {
+        if (uiLocked) return;
+        let mvX = playerCoords.x;
+        let mvY = playerCoords.y;
 
-        if (event.key === 'w' || event.key === 'ArrowUp') stepY--;
-        else if (event.key === 's' || event.key === 'ArrowDown') stepY++;
-        else if (event.key === 'a' || event.key === 'ArrowLeft') stepX--;
-        else if (event.key === 'd' || event.key === 'ArrowRight') stepX++;
+        if (evt.key === 'w' || evt.key === 'ArrowUp') mvY--;
+        else if (evt.key === 's' || evt.key === 'ArrowDown') mvY++;
+        else if (evt.key === 'a' || evt.key === 'ArrowLeft') mvX--;
+        else if (evt.key === 'd' || evt.key === 'ArrowRight') mvX++;
         else return;
 
-        if (mapGrid[stepY][stepX] !== 1) {
-            playerPos.x = stepX;
-            playerPos.y = stepY;
+        if (mapMatrix[mvY][mvX] !== 1) {
+            playerCoords.x = mvX;
+            playerCoords.y = mvY;
             
-            if (mapGrid[playerPos.y][playerPos.x] === 2) {
-                engageMonster(playerPos.x, playerPos.y);
-            } else if (mapGrid[playerPos.y][playerPos.x] === 3) {
-                engageLoot();
+            if (mapMatrix[playerCoords.y][playerCoords.x] === 2) {
+                initiateCombat(playerCoords.x, playerCoords.y);
+            } else if (mapMatrix[playerCoords.y][playerCoords.x] === 3) {
+                initiateLoot();
             } else {
-                pushLog(`Moved into server block [${playerPos.x}, ${playerPos.y}]`);
+                pushLog(`Moved to coordinate registers [${playerCoords.x}, ${playerCoords.y}]`);
             }
         }
-        renderArenaMap();
+        renderArena();
     });
 
-    // Handle Question Combat Engine
-    function engageMonster(x, y) {
-        interactionActive = true;
-        player.currentMonsterCoord = { x: x, y: y };
-        
-        // Loop safety toggle: If index exceeds 100 questions pool, shuffle back to beginning infinitely
-        if (currentQuestionIndex >= masterPool.length) {
-            pushLog("🔄 ALL 100 ARCHITECTURE PROMPTS SCRUBBED! Shuffling system pool and regenerating field...");
-            shuffleArray(masterPool);
-            currentQuestionIndex = 0;
-            respawnEntities();
+    // 4. RANDOM CHOICE & TICKING TIMER ENGAGEMENT ENGINE
+    function initiateCombat(targetX, targetY) {
+        uiLocked = true;
+        timerFrozen = false;
+        gladiator.currentMonsterPos = { x: targetX, y: targetY };
+        document.getElementById('use-freeze-btn').disabled = (gladiator.latches <= 0);
+
+        // Progressively scale timer down linearly: 15s down to 3s near lvl 50
+        currentQuestionTimeMax = Math.max(3.0, 15.0 - (gladiator.level - 1) * 0.25);
+        document.getElementById('speed-indicator').innerText = `Timer Speed: ${currentQuestionTimeMax.toFixed(1)}s`;
+
+        if (questionIndex >= questionBank.length) {
+            pushLog("🔄 Questions array exhausted. Shuffling 100 new entries onto grid matrix.");
+            shuffle(questionBank);
+            questionIndex = 0;
+            populateThreats();
         }
 
-        let targetQuestion = masterPool[currentQuestionIndex];
-        document.getElementById('question-text').innerText = targetQuestion.q;
+        let questionItem = questionBank[questionIndex];
+        document.getElementById('question-text').innerText = questionItem.q;
         
-        let optBox = document.getElementById('options-box');
-        optBox.innerHTML = "";
+        // DYNAMIC SHUFFLE: Copy answer array options and randomize placement position
+        let randomizedChoices = [...questionItem.a];
+        shuffle(randomizedChoices);
+
+        let optionContainer = document.getElementById('options-box');
+        optionContainer.innerHTML = "";
         document.getElementById('combat-feedback').innerText = "";
 
-        targetQuestion.a.forEach((optStr, idx) => {
-            let button = document.createElement('button');
-            button.className = "option-btn";
-            button.innerText = `${String.fromCharCode(65 + idx)}. ${optStr}`;
-            button.onclick = function() {
-                if (idx === targetQuestion.c) {
-                    // Success handling logic
+        randomizedChoices.forEach((choiceString, buttonIndex) => {
+            let btn = document.createElement('button');
+            btn.className = "option-btn";
+            btn.innerText = `${String.fromCharCode(65 + buttonIndex)}. ${choiceString}`;
+            
+            btn.onclick = function() {
+                clearInterval(countdownTimer);
+                // Compare text strings instead of indices to bypass static position vulnerabilities
+                if (choiceString === questionItem.correctText) {
                     document.getElementById('combat-feedback').style.color = "var(--accent-green)";
-                    document.getElementById('combat-feedback').innerText = "✔ LOGIC SECTOR ACCURATE! Monster logic wiped out.";
-                    player.gold += 25;
-                    player.xp += 35;
+                    document.getElementById('combat-feedback').innerText = "✔ ACCURACY CONFIRMED. Entity data parsed.";
+                    gladiator.gold += 20;
+                    gladiator.xp += 35;
                     
-                    // Progressive exponential levelling up math calculation loop
-                    if (player.xp >= player.nextLevelXp) {
-                        player.xp -= player.nextLevelXp;
-                        player.level += 1;
-                        player.maxHp += 5;
-                        player.hp = player.maxHp; // Heal to full capacity on rank up
-                        player.nextLevelXp = Math.floor(player.level * 100 * 1.5); // Level spacing gaps expand
-                        pushLog(`⚡ DYNAMIC RANK UP! Reached level ${player.level}. Core bounds amplified! Next requirement: ${player.nextLevelXp} XP`);
+                    // Progressive exponential ranking calculations
+                    if (gladiator.xp >= gladiator.nextLevelXp) {
+                        gladiator.xp -= gladiator.nextLevelXp;
+                        gladiator.level += 1;
+                        gladiator.maxHp += 4;
+                        gladiator.hp = gladiator.maxHp; // Heal to full on rank up
+                        gladiator.nextLevelXp = Math.floor(gladiator.level * 100 * 1.5);
+                        pushLog(`⚡ LEVEL UP! Advanced to rank ${gladiator.level}. Next block: ${gladiator.nextLevelXp} XP`);
                     }
 
-                    mapGrid[player.currentMonsterCoord.y][player.currentMonsterCoord.x] = 3; // Transform space to loot core dropping box
-                    currentQuestionIndex++;
-                    setTimeout(exitCombat, 1400);
+                    mapMatrix[gladiator.currentMonsterPos.y][gladiator.currentMonsterPos.x] = 3; // Leaves loot chest item
+                    questionIndex++;
+                    setTimeout(closeCombatWindow, 1200);
                 } else {
-                    // Failure penalties - Costs HP and takes away Gold
-                    document.getElementById('combat-feedback').style.color = "var(--accent-red)";
-                    document.getElementById('combat-feedback').innerText = "❌ COUNTER SYSTEM MISMATCH! Lost 6 Health and 15 Gold.";
-                    player.hp -= 6;
-                    player.gold = Math.max(0, player.gold - 15);
-                    refreshDashboard();
+                    executeMonsterStrike(false); // Incorrect calculation strike penalty
                 }
             };
-            optBox.appendChild(button);
+            optionContainer.appendChild(btn);
         });
 
+        // Initialize active ticking countdown clock tracking loops
+        timeRemaining = currentQuestionTimeMax;
+        document.getElementById('combat-timer-bar').style.backgroundColor = "#ffaa00";
+        document.getElementById('combat-timer-bar').style.width = "100%";
         document.getElementById('combat-terminal').style.display = "block";
+
+        countdownTimer = setInterval(function() {
+            if (timerFrozen) return;
+            timeRemaining -= 0.05;
+            let percentage = (timeRemaining / currentQuestionTimeMax) * 100;
+            document.getElementById('combat-timer-bar').style.width = `${Math.max(0, percentage)}%`;
+
+            if (percentage <= 30) {
+                document.getElementById('combat-timer-bar').style.backgroundColor = "var(--accent-red)";
+            }
+
+            if (timeRemaining <= 0) {
+                clearInterval(countdownTimer);
+                executeMonsterStrike(true); // Timeout failure strike trigger
+            }
+        }, 50);
     }
 
-    function exitCombat() {
+    // Ability activation script to stall ticking parameters
+    function activateTimeFreeze() {
+        if (gladiator.latches > 0 && !timerFrozen && uiLocked) {
+            gladiator.latches--;
+            timerFrozen = true;
+            document.getElementById('use-freeze-btn').disabled = true;
+            document.getElementById('combat-timer-bar').style.backgroundColor = "var(--accent-purple)";
+            document.getElementById('combat-feedback').style.color = "var(--accent-purple)";
+            document.getElementById('combat-feedback').innerText = "🔒 DATA LATCH ACTIVE: Clock frequency frozen securely.";
+            updateDashboardUI();
+        }
+    }
+
+    // RNG Damage processing parameters
+    function executeMonsterStrike(isTimeout) {
+        // RNG Math: Hit variance from 4 up to a massive critical 14 point hit
+        let rawDamage = Math.floor(Math.random() * 11) + 4; 
+        let finalDamage = Math.max(2, rawDamage - gladiator.def); // Armor absorbs flat attributes
+        
+        gladiator.hp -= finalDamage;
+        // Severe Stakes penalty rule: Miscalculation leaks cash from bank registers
+        gladiator.gold = Math.max(0, gladiator.gold - 12);
+        updateDashboardUI();
+
+        document.getElementById('combat-feedback').style.color = "var(--accent-red)";
+        if (isTimeout) {
+            document.getElementById('combat-feedback').innerText = `⏰ TIME EXPIRED! Free strike hit you for ${finalDamage} damage!`;
+        } else {
+            document.getElementById('combat-feedback').innerText = `❌ LOGIC MISMATCH! Feedback spike hits you for ${finalDamage} damage!`;
+        }
+
+        // Restart timer parameters safely to give them another shot at the same question
+        if (gladiator.hp > 0) {
+            setTimeout(function() {
+                clearInterval(countdownTimer);
+                initiateCombat(gladiator.currentMonsterPos.x, gladiator.currentMonsterPos.y);
+            }, 1500);
+        }
+    }
+
+    function closeCombatWindow() {
         document.getElementById('combat-terminal').style.display = "none";
-        interactionActive = false;
-        renderArenaMap();
+        uiLocked = false;
+        renderArena();
     }
 
-    // Handle Optional Loot Choice Windows
-    function engageLoot() {
-        interactionActive = true;
+    // Loot Drop Module Interaction Loops
+    function initiateLoot() {
+        uiLocked = true;
         document.getElementById('loot-terminal').style.display = "block";
     }
 
-    function processLoot(decision) {
-        if (decision === 'equip') {
-            player.atk += 4;
-            player.def += 2;
-            pushLog("Extracted hardware cores: Modified internal logic gates (+4 ATK / +2 DEF).");
-        } else if (decision === 'gold') {
-            player.gold += 45;
-            pushLog("Scrapped schematic layout records onto the market for +45 gold.");
-        } else {
-            pushLog("Purged structural residue without extracting materials.");
+    function processLoot(type) {
+        if (type === 'latch') {
+            gladiator.latches++;
+            pushLog("Salvaged trace registers: Built 1 unlockable Data Latch ability token.");
+        } else if (type === 'gold') {
+            gladiator.gold += 50;
+            pushLog("Liquidated hardware core data arrays for +50 gold coins.");
         }
         closeLoot();
     }
 
     function closeLoot() {
-        mapGrid[playerPos.y][playerPos.x] = 0; // Wipe cell content clear
+        mapMatrix[playerCoords.y][playerCoords.x] = 0; // Clears the spatial data point
         document.getElementById('loot-terminal').style.display = "none";
-        interactionActive = false;
-        renderArenaMap();
+        uiLocked = false;
+        renderArena();
     }
 
-    // Initialize environment elements on launch
-    respawnEntities();
-    renderArenaMap();
+    // Arena generation boots
+    populateThreats();
+    renderArena();
 </script>
 
 </body>
